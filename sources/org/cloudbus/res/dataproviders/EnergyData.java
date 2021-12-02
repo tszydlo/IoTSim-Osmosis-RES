@@ -12,4 +12,6 @@ public interface EnergyData {
     double getCurrentPower(LocalDateTime time);
 
     double getAnnualEnergy();
+
+    boolean isForecast();
 }
