@@ -17,10 +17,8 @@ public class RES_forecast_example1_DCAgent extends DCAgent {
 
         if (energyController.getEnergySources().get(0).getEnergyData().isForecast()){
             forecast = (ForecastData) energyController.getEnergySources().get(0).getEnergyData();
+            //forecast.getNDayForecast();
         };
-
-        //forecast.getNDayForecast();
-
     }
 
     @Override

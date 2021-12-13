@@ -69,7 +69,10 @@ public class PVGisResponse implements EnergyData, ForecastData {
     private void addHoursForecast(int day, int clean){
         for(int h=0; h<24; h++){
 
-            if (day*24+h < outputs.getHourly().size()) {
+            if (day > outputs.getHourly().size()/24){
+                hours_forecast[h].remove(hours_forecast[h].size()-1);
+
+            } else if (day*24+h < outputs.getHourly().size()) {
                 hours_forecast[h].add(outputs.getHourly().get(day * 24 + h).getSystemPower());
             }
 
@@ -80,7 +83,7 @@ public class PVGisResponse implements EnergyData, ForecastData {
     }
 
     public void calculateForecast(){
-        int BASE=14;
+        int BASE=28;
         hours_forecast = new List[24];
         base_forecast = new double[24];
         for(int k=0; k<24; k++){
@@ -88,8 +91,8 @@ public class PVGisResponse implements EnergyData, ForecastData {
         }
         days_forecast = new ArrayList<>();
 
-        for(int i=0; i<BASE; i++){
-            addHoursForecast(i, BASE);
+        for(int i=0; i<BASE/2; i++){
+            addHoursForecast(i, BASE/2);
         }
 
         for(int day=0; day<outputs.getHourly().size()/24; day++){
@@ -104,9 +107,10 @@ public class PVGisResponse implements EnergyData, ForecastData {
 
             days_forecast.add(forecast);
 
-            addHoursForecast(day+BASE, BASE);
+            addHoursForecast(day+BASE/2, BASE);
 
-            System.out.println("DAY="+day+" forecast="+forecast);
+            //System.out.println("DAY="+day+" forecast="+forecast);
+            //System.out.println("DAY="  +day+" \t"+forecast+" \t"+basePower+" \t"+dayPower+" \t"+hours_forecast[2].size());
         }
     }
 
