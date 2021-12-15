@@ -13,7 +13,7 @@ public class RES_RL_example1_Environment implements QLearnEnvironment {
     static String SENSING_RATE="sensing_rate";
     static String FORECAST="forecast";
     static String CHARGING="charging";
-    static String TIME="charging";
+    static String TIME="time";
 
     double sensingRateCtx;
     double batteryLevelCtx;
