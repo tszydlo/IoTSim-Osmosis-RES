@@ -55,7 +55,8 @@ public abstract class IoTDevice extends SimEntity {
 	private OsmosisRoutingTable routingTable = new OsmosisRoutingTable();
 	private DeviceAgent osmoticDeviceAgent;
 
-	private List<Flow> flowList = new ArrayList<>(); 
+	private List<Flow> flowList = new ArrayList<>();
+	private double updateIoTDeviceDataRate;
 	
 	public IoTDevice( String name, EdgeNetworkInfo networkModel, double bandwidth) {
 		super(name);
@@ -152,6 +153,7 @@ public abstract class IoTDevice extends SimEntity {
 		// if the battery is drained,
 		this.updateBatteryBySensing();
 		boolean died = this.updateBatteryByTransmission();
+		app.setIoTDeviceDataRate(updateIoTDeviceDataRate); //To update IoTDevice data rate
 		app.setIoTBatteryConsumption(this.battery.getBatteryTotalConsumption());
 		if (died) {
 			app.setIoTDeviceDied(true);
@@ -239,5 +241,13 @@ public abstract class IoTDevice extends SimEntity {
 
 	public OsmosisRoutingTable getRoutingTable() {
 		return routingTable;
+	}
+
+	public double getUpdateIoTDeviceDataRate() {
+		return updateIoTDeviceDataRate;
+	}
+
+	public void setUpdateIoTDeviceDataRate(double updateIoTDeviceDataRate) {
+		this.updateIoTDeviceDataRate = updateIoTDeviceDataRate;
 	}
 }

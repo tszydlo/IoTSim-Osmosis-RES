@@ -237,4 +237,8 @@ public class OsmesisAppDescription {
 	public double getIoTDeviceBatteryConsumption() {
 		return IoTDeviceBatteryConsumption;
 	}
+
+	public void setIoTDeviceDataRate(double ioTDeviceDataRate) {
+		this.DataRate = ioTDeviceDataRate;
+	}
 }

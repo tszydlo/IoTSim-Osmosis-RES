@@ -2,6 +2,7 @@ package org.cloudbus.cloudsim.osmesis.examples;
 
 import org.cloudbus.agent.AgentMessage;
 import org.cloudbus.agent.DCAgent;
+import org.cloudbus.cloudsim.core.CloudSim;
 
 import java.util.List;
 
@@ -18,6 +19,8 @@ public class RES_RL_example1_DCAgent extends DCAgent {
     @Override
     public void monitor() {
         super.monitor();
+
+        System.out.println( (int)(CloudSim.clock()%(24*3600)/3600)  );
 
     }
 
@@ -40,6 +43,11 @@ public class RES_RL_example1_DCAgent extends DCAgent {
                 //update environment
                 //TODO
                 System.out.println("Message from device "+res_rl_message.getSOURCE()+" Battery Level = "+res_rl_message.getBatteryLevel());
+
+                environment.setBatteryLevelCtx(res_rl_message.getBatteryLevel());
+                //environment.setChargingCtx(res);
+                environment.setSensingRateCtx(res_rl_message.getSensingRate());
+                //environment.setForecastCtx();
             }
         }
     }
@@ -51,7 +59,7 @@ public class RES_RL_example1_DCAgent extends DCAgent {
         //Create new message.
         RES_RL_example1_AgentMessage res_rl_message = (RES_RL_example1_AgentMessage) newAgentMessage();
 
-        res_rl_message.setSensingRate(123.0);
+        res_rl_message.setSensingRate(123);
         res_rl_message.setToDevice();
         //Send to all neighbours (null destination means all - follows the agent topology defined in the example file).
         res_rl_message.setDESTINATION(null);

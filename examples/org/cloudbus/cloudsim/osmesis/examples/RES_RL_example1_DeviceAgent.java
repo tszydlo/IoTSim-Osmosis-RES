@@ -41,6 +41,8 @@ public class RES_RL_example1_DeviceAgent extends DeviceAgent {
 
             if (res_rl_message.isToDevice()){
                 System.out.println("Message from device "+res_rl_message.getSOURCE()+" Device="+this.getName() + " New sensing rate="+res_rl_message.getSensingRate());
+                //this.getIoTDevice().setUpdateIoTDeviceDataRate(res_rl_message.getSensingRate());  //To update IoTDevice data rate
+                getIoTDevice().setUpdateIoTDeviceDataRate(200.0);
             }
         }
     }
