@@ -7,6 +7,9 @@ import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.res.dataproviders.ForecastData;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
@@ -24,7 +27,7 @@ public class RES_RL_example1_DCAgent extends DCAgent {
     private int currentState;
 
     Random random;
-    private static final int DEFAULT_NUMBER_OF_ACTIONS = 5;
+    private static final int DEFAULT_NUMBER_OF_ACTIONS = 6;
 
     public RES_RL_example1_DCAgent() {
         environment = new RES_RL_example1_Environment();
@@ -71,15 +74,30 @@ public class RES_RL_example1_DCAgent extends DCAgent {
                 this.currentState = environment.getState();
                 this.qAgent.update(this.previousActionId, this.currentState, this.previousReward);
 
-
-                Log.printLine(String.format("%1s\t%10s\t%10s\t%10s\t%10s\t%10s\t%10s"
-                        , (int)(CloudSim.clock()/3600/24)
-                        , (int)(CloudSim.clock()%(24*3600)/3600)
+                String line = String.format("%1s\t%10s\t%10s\t%10s\t%10s\t%10s\t%10s\t%10s\t%10s"
+                        //, (int)(CloudSim.clock()/3600/24)
+                        , energyController.getSimulationCurrentTime().getYear()
+                        , energyController.getSimulationCurrentTime().getDayOfYear()
+                        //, (int)(CloudSim.clock()%(24*3600)/3600)
+                        , energyController.getSimulationCurrentTime().getMonthValue()
+                        , energyController.getSimulationCurrentTime().getHour()
                         , previousReward
                         , currentState
                         , previousActionId
                         , res_rl_message.getBatteryLevel()
-                        , res_rl_message.getSensingRate()));
+                        , res_rl_message.getSensingRate());
+
+                Log.printLine(line);
+
+                try {
+                    BufferedWriter writer = null;
+                    writer = new BufferedWriter(new FileWriter("rl_battery.csv", true));
+                    writer.append(line);
+                    writer.append("\n");
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -93,11 +111,14 @@ public class RES_RL_example1_DCAgent extends DCAgent {
         res_rl_message.setToDevice();
         previousActionId =  qAgent.selectAction().getIndex();
 
+        //previousActionId = -1;
+
         if(previousActionId <= 0){
             previousActionId = random.nextInt(DEFAULT_NUMBER_OF_ACTIONS);
         }
 
         res_rl_message.setSensingRate(previousActionId * 20.0 + 100.0);
+        //res_rl_message.setSensingRate(200.0);
         //Send to all neighbours (null destination means all - follows the agent topology defined in the example file).
         res_rl_message.setDESTINATION(null);
         publishMessage(res_rl_message);

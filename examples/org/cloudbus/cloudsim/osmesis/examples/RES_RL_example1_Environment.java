@@ -58,7 +58,8 @@ public class RES_RL_example1_Environment implements QLearnEnvironment {
         if (batteryLevelCtx < 0.05){
             return -1;
         } else {
-            return 80.0/sensingRateCtx;
+            return 100.0/sensingRateCtx;
+            //return batteryLevelCtx;
         }
     }
 
