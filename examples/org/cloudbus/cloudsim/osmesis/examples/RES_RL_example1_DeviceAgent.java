@@ -21,7 +21,7 @@ public class RES_RL_example1_DeviceAgent extends DeviceAgent {
         RES_RL_example1_AgentMessage res_rl_message = (RES_RL_example1_AgentMessage) newAgentMessage();
 
         res_rl_message.setBatteryLevel(this.getIoTDevice().getBattery().getCurrentCapacity());
-        //res_rl_message.setSensingRate(this.getIoTDevice().);
+        res_rl_message.setSensingRate(this.getIoTDevice().getUpdateIoTDeviceDataRate());
         res_rl_message.setToEdge();
 
         //Send to all neighbours (null destination means all - follows the agent topology defined in the example file).
@@ -40,9 +40,9 @@ public class RES_RL_example1_DeviceAgent extends DeviceAgent {
             RES_RL_example1_AgentMessage res_rl_message = (RES_RL_example1_AgentMessage) message;
 
             if (res_rl_message.isToDevice()){
-                System.out.println("Message from device "+res_rl_message.getSOURCE()+" Device="+this.getName() + " New sensing rate="+res_rl_message.getSensingRate());
-                //this.getIoTDevice().setUpdateIoTDeviceDataRate(res_rl_message.getSensingRate());  //To update IoTDevice data rate
-                getIoTDevice().setUpdateIoTDeviceDataRate(200.0);
+                //System.out.println("Message from device "+res_rl_message.getSOURCE()+" Device="+this.getName() + " New sensing rate="+res_rl_message.getSensingRate());
+                this.getIoTDevice().setUpdateIoTDeviceDataRate(res_rl_message.getSensingRate());  //To update IoTDevice data rate
+                //getIoTDevice().setUpdateIoTDeviceDataRate(50.0);
             }
         }
     }

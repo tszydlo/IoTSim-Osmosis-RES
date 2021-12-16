@@ -11,14 +11,14 @@ import java.util.Map;
 public class RES_RL_example1_Environment implements QLearnEnvironment {
     static String BATTERY_LEVEL="battery_level";
     static String SENSING_RATE="sensing_rate";
-    static String FORECAST="forecast";
-    static String CHARGING="charging";
+    static String NEXTDAY_FORECAST="nextday_forecast";
+    static String TODAY_FORECAST="today_forecast";
     static String TIME="time";
 
     double sensingRateCtx;
     double batteryLevelCtx;
-    double forecastCtx;
-    boolean chargingCtx;
+    double nextdayForecastCtx;
+    double todayForecastCtx;
     int timeCtx;
 
     Map<String, Integer> maxCtxElements;
@@ -35,8 +35,8 @@ public class RES_RL_example1_Environment implements QLearnEnvironment {
 
         add_context_element(BATTERY_LEVEL, 5);
         add_context_element(SENSING_RATE, 5);
-        add_context_element(FORECAST, 3);
-        add_context_element(CHARGING, 2);
+        add_context_element(NEXTDAY_FORECAST, 3);
+        add_context_element(TODAY_FORECAST, 3);
         add_context_element(TIME, 4);
     }
 
@@ -52,10 +52,25 @@ public class RES_RL_example1_Environment implements QLearnEnvironment {
 
     }
 
+    public double getReward() {
+        //alpha * r_q + (1-alpha) * r_e
+
+        if (batteryLevelCtx < 50.0){
+            return 0;
+        } else {
+            return 1;
+        }
+    }
+
     @Override
     public double getReward(QLearnAgent agent) {
         //alpha * r_q + (1-alpha) * r_e
-        return 0;
+
+        if (batteryLevelCtx < 50.0){
+            return -1;
+        } else {
+            return 1;
+        }
     }
 
     @Override
@@ -68,6 +83,15 @@ public class RES_RL_example1_Environment implements QLearnEnvironment {
         }
         return state;
     }
+
+    public int getNumStates() {
+        int states = 1;
+        for(int i =0; i< context.size(); i++){
+            states*=context.get(i);
+        }
+        return states;
+    }
+
 
     @Override
     public int updateAndGetNewState(QLearnAgent agent, int actionId) {
@@ -108,38 +132,34 @@ public class RES_RL_example1_Environment implements QLearnEnvironment {
         context.add(ctx2index.get(BATTERY_LEVEL), (int) (batteryLevelCtx/0.2));
     }
 
-    public void setForecastCtx(double forecastCtx) {
-        this.forecastCtx = forecastCtx;
-        context.add(ctx2index.get(FORECAST), (int) (batteryLevelCtx/0.35));
+    public void setNextdayForecastCtx(double forecastCtx) {
+        this.nextdayForecastCtx = forecastCtx;
+        context.add(ctx2index.get(NEXTDAY_FORECAST), (int) (forecastCtx/0.35));
     }
 
-    public void setChargingCtx(boolean chargingCtx) {
-        this.chargingCtx = chargingCtx;
-        if (chargingCtx){
-            context.add(ctx2index.get(CHARGING), 1);
-        } else {
-            context.add(ctx2index.get(CHARGING), 0);
-        }
+    public void setTodayForecastCtx(double forecastCtx) {
+        this.todayForecastCtx = forecastCtx;
+        context.add(ctx2index.get(NEXTDAY_FORECAST), (int) (forecastCtx/0.35));
     }
 
     public void setTimeCtx(int timeCtx) {
         this.timeCtx = timeCtx;
 
         if (timeCtx < 6){
-            context.add(ctx2index.get(CHARGING), 0);
+            context.add(ctx2index.get(TIME), 0);
             return;
         }
 
         if (timeCtx < 12){
-            context.add(ctx2index.get(CHARGING), 1);
+            context.add(ctx2index.get(TIME), 1);
             return;
         }
 
         if (timeCtx < 18){
-            context.add(ctx2index.get(CHARGING), 2);
+            context.add(ctx2index.get(TIME), 2);
             return;
         }
-        context.add(ctx2index.get(CHARGING), 0);
+        context.add(ctx2index.get(TIME), 0);
     }
 
 }

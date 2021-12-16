@@ -134,7 +134,7 @@ public class PVGisResponse implements EnergyData, ForecastData {
         int day = time.getDayOfYear();
 
         for(int i=0; i<n; i++){
-            if ((day+i) > days_forecast.size()){
+            if ((day+i) > days_forecast.size()-1){
                 result[i]=0.5;
             } else {
                 result[i] = days_forecast.get(day + i);

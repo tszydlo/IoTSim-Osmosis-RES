@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 public class RES_RL_example1 {
     //Workload and infrastructure configuration are the same as in the example 2.
-    public static final String configurationFile = "inputFiles/res/RES_example7_infrastructure_2edges.json";
+    public static final String configurationFile = "inputFiles/res/RES_RL_example1_infrastructure_1edge.json";
     public static final String osmesisAppFile =  "inputFiles/res/RES_RL_example1_workload.csv";
     //RES configuration is the same as in the example 6.
     public static final String RES_CONFIG_FILE =  "inputFiles/res/RES_example6_energy_config.json";
@@ -59,7 +59,7 @@ public class RES_RL_example1 {
         //Simulation is not started yet thus there is not any MELs.
         //Links for Agents between infrastructure elements.
         agentBroker.addAgentLink("temperature_1", "Edge_M_1");
-        agentBroker.addAgentLink("temperature_1", "Edge_M_2");
+        //agentBroker.addAgentLink("temperature_1", "Edge_M_2");
 
         //Osmotic Agents time interval
         agentBroker.setMAPEInterval(15*60);
@@ -142,17 +142,17 @@ public class RES_RL_example1 {
         }
 
         Log.printLine();
-        LogPrinter.printEnergyConsumption(topologyBuilder.getSdWanController().getName(), null, topologyBuilder.getSdWanController().getSwitchList(), startTime);
-        Log.printLine();
-        Log.printLine("Simulation Finished!");
+        //LogPrinter.printEnergyConsumption(topologyBuilder.getSdWanController().getName(), null, topologyBuilder.getSdWanController().getSwitchList(), startTime);
+        //Log.printLine();
+        //Log.printLine("Simulation Finished!");
 
         Log.printLine();
-        Log.printLine("Post-mortem RES energy analysis!");
-        RESPrinterDeviceBattery res_printer = new RESPrinterDeviceBattery();
-        res_printer.postMortemAnalysis(energyControllers,simulationStartTime, true,1);
+        //Log.printLine("Post-mortem RES energy analysis!");
+        //RESPrinterDeviceBattery res_printer = new RESPrinterDeviceBattery();
+        //res_printer.postMortemAnalysis(energyControllers,simulationStartTime, true,10000);
         //res_printer.postMortemAnalysis(energyControllers,simulationStartTime, false, 36);
         //res_printer.postMortemAnalysis(energyControllers,"20160901:0000", false, 36);
-        Log.printLine("End of RES analysis!");
+        //Log.printLine("End of RES analysis!");
     }
 
     private Map<String, EnergyController> getEnergyControllers() throws IOException {

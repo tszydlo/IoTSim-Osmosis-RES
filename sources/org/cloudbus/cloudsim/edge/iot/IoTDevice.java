@@ -147,6 +147,48 @@ public abstract class IoTDevice extends SimEntity {
 		this.enabled = enabled;
 	}
 	
+//	private void sensing(SimEvent ev) {
+//		OsmesisAppDescription app = (OsmesisAppDescription) ev.getData();
+//
+//		// if the battery is drained,
+//		this.updateBatteryBySensing();
+//		boolean died = this.updateBatteryByTransmission();
+//		app.setIoTDeviceDataRate(updateIoTDeviceDataRate); //To update IoTDevice data rate
+//		app.setIoTBatteryConsumption(this.battery.getBatteryTotalConsumption());
+//		if (died) {
+//			app.setIoTDeviceDied(true);
+//			LogUtil.info(this.getClass().getSimpleName() + " running time is " + CloudSim.clock());
+//
+//			this.setEnabled(false);
+//			LogUtil.info(this.getClass().getSimpleName()+" " + this.getId() + "'s battery has been drained");
+//			this.runningTime = CloudSim.clock();
+//			return;
+//		}
+//
+//		Flow flow = this.createFlow(app);
+//
+//		WorkflowInfo workflowTag = new WorkflowInfo();
+//		workflowTag.setStartTime(CloudSim.clock());
+//		workflowTag.setAppId(app.getAppID());
+//		workflowTag.setAppName(app.getAppName());
+//		workflowTag.setIotDeviceFlow(flow);
+//		workflowTag.setWorkflowId(app.addWorkflowId(1));
+//		workflowTag.setSourceDCName(app.getEdgeDatacenterName());
+//		workflowTag.setDestinationDCName(app.getCloudDatacenterName());
+//		flow.setWorkflowTag(workflowTag);
+//		OsmesisBroker.workflowTag.add(workflowTag);
+//		flow.addPacketSize(app.getIoTDeviceOutputSize());
+//		updateBandwidth();
+//
+//		//Adaptive Osmosis Flow Routing
+//		String finalMEL = routingTable.getRule(flow.getAppNameDest());
+//		flow.setAppNameDest(finalMEL);
+//
+//		//MEL ID Resolution in Osmotic Broker
+//		//sendNow(flow.getDatacenterId(), OsmosisTags.TRANSMIT_IOT_DATA, flow);
+//		sendNow(OsmesisBroker.brokerID, OsmosisTags.ROUTING_MEL_ID_RESOLUTION, flow); //necessary for osmotic flow routing - concept similar to ARP protocol
+//	}
+
 	private void sensing(SimEvent ev) {
 		OsmesisAppDescription app = (OsmesisAppDescription) ev.getData();
 
@@ -155,40 +197,40 @@ public abstract class IoTDevice extends SimEntity {
 		boolean died = this.updateBatteryByTransmission();
 		app.setIoTDeviceDataRate(updateIoTDeviceDataRate); //To update IoTDevice data rate
 		app.setIoTBatteryConsumption(this.battery.getBatteryTotalConsumption());
-		if (died) {
-			app.setIoTDeviceDied(true);
-			LogUtil.info(this.getClass().getSimpleName() + " running time is " + CloudSim.clock());
+//		if (died) {
+//			app.setIoTDeviceDied(true);
+//			LogUtil.info(this.getClass().getSimpleName() + " running time is " + CloudSim.clock());
+//
+//			this.setEnabled(false);
+//			LogUtil.info(this.getClass().getSimpleName()+" " + this.getId() + "'s battery has been drained");
+//			this.runningTime = CloudSim.clock();
+//			return;
+//		}
 
-			this.setEnabled(false);
-			LogUtil.info(this.getClass().getSimpleName()+" " + this.getId() + "'s battery has been drained");
-			this.runningTime = CloudSim.clock();			
-			return;
+		if (!died) {
+			Flow flow = this.createFlow(app);
+
+			WorkflowInfo workflowTag = new WorkflowInfo();
+			workflowTag.setStartTime(CloudSim.clock());
+			workflowTag.setAppId(app.getAppID());
+			workflowTag.setAppName(app.getAppName());
+			workflowTag.setIotDeviceFlow(flow);
+			workflowTag.setWorkflowId(app.addWorkflowId(1));
+			workflowTag.setSourceDCName(app.getEdgeDatacenterName());
+			workflowTag.setDestinationDCName(app.getCloudDatacenterName());
+			flow.setWorkflowTag(workflowTag);
+			OsmesisBroker.workflowTag.add(workflowTag);
+			flow.addPacketSize(app.getIoTDeviceOutputSize());
+			updateBandwidth();
+
+			//Adaptive Osmosis Flow Routing
+			String finalMEL = routingTable.getRule(flow.getAppNameDest());
+			flow.setAppNameDest(finalMEL);
+
+			//MEL ID Resolution in Osmotic Broker
+			//sendNow(flow.getDatacenterId(), OsmosisTags.TRANSMIT_IOT_DATA, flow);
+			sendNow(OsmesisBroker.brokerID, OsmosisTags.ROUTING_MEL_ID_RESOLUTION, flow); //necessary for osmotic flow routing - concept similar to ARP protocol
 		}
-
-		Flow flow = this.createFlow(app);	
-		
-		WorkflowInfo workflowTag = new WorkflowInfo();
-		workflowTag.setStartTime(CloudSim.clock());
-		workflowTag.setAppId(app.getAppID());
-		workflowTag.setAppName(app.getAppName());
-		workflowTag.setIotDeviceFlow(flow);
-		workflowTag.setWorkflowId(app.addWorkflowId(1));
-		workflowTag.setSourceDCName(app.getEdgeDatacenterName());
-		workflowTag.setDestinationDCName(app.getCloudDatacenterName());
-		flow.setWorkflowTag(workflowTag);
-		OsmesisBroker.workflowTag.add(workflowTag);
-		flow.addPacketSize(app.getIoTDeviceOutputSize());			
-		updateBandwidth();
-
-
-
-		//Adaptive Osmosis Flow Routing
-		String finalMEL = routingTable.getRule(flow.getAppNameDest());
-		flow.setAppNameDest(finalMEL);
-
-		//MEL ID Resolution in Osmotic Broker
-		//sendNow(flow.getDatacenterId(), OsmosisTags.TRANSMIT_IOT_DATA, flow);
-		sendNow(OsmesisBroker.brokerID, OsmosisTags.ROUTING_MEL_ID_RESOLUTION, flow); //necessary for osmotic flow routing - concept similar to ARP protocol
 	}
 
 
