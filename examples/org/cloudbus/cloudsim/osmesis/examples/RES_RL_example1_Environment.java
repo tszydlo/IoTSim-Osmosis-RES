@@ -55,22 +55,17 @@ public class RES_RL_example1_Environment implements QLearnEnvironment {
     public double getReward() {
         //alpha * r_q + (1-alpha) * r_e
 
-        if (batteryLevelCtx < 50.0){
-            return 0;
+        if (batteryLevelCtx < 0.05){
+            return -1;
         } else {
-            return 1;
+            return 80.0/sensingRateCtx;
         }
     }
 
     @Override
     public double getReward(QLearnAgent agent) {
         //alpha * r_q + (1-alpha) * r_e
-
-        if (batteryLevelCtx < 50.0){
-            return -1;
-        } else {
-            return 1;
-        }
+        return 0;
     }
 
     @Override
@@ -101,27 +96,27 @@ public class RES_RL_example1_Environment implements QLearnEnvironment {
     public void setSensingRateCtx(double sensingRateCtx) {
         this.sensingRateCtx = sensingRateCtx;
         if (sensingRateCtx < 1.0) {
-            context.add(ctx2index.get(SENSING_RATE),0);
+            context.set(ctx2index.get(SENSING_RATE),0);
             return;
         };
 
         if (sensingRateCtx < 2.0) {
-            context.add(ctx2index.get(SENSING_RATE),1);
+            context.set(ctx2index.get(SENSING_RATE),1);
             return;
         };
 
         if (sensingRateCtx < 3.0) {
-            context.add(ctx2index.get(SENSING_RATE),2);
+            context.set(ctx2index.get(SENSING_RATE),2);
             return;
         };
 
         if (sensingRateCtx < 4.0) {
-            context.add(ctx2index.get(SENSING_RATE),3);
+            context.set(ctx2index.get(SENSING_RATE),3);
             return;
         };
 
         if (sensingRateCtx < 5.0) {
-            context.add(ctx2index.get(SENSING_RATE),4);
+            context.set(ctx2index.get(SENSING_RATE),4);
             return;
         };
     }
@@ -129,37 +124,37 @@ public class RES_RL_example1_Environment implements QLearnEnvironment {
     public void setBatteryLevelCtx(double batteryLevelCtx) {
         this.batteryLevelCtx = batteryLevelCtx;
 
-        context.add(ctx2index.get(BATTERY_LEVEL), (int) (batteryLevelCtx/0.2));
+        context.set(ctx2index.get(BATTERY_LEVEL), (int) (batteryLevelCtx/0.2));
     }
 
     public void setNextdayForecastCtx(double forecastCtx) {
         this.nextdayForecastCtx = forecastCtx;
-        context.add(ctx2index.get(NEXTDAY_FORECAST), (int) (forecastCtx/0.35));
+        context.set(ctx2index.get(NEXTDAY_FORECAST), (int) (forecastCtx/0.35));
     }
 
     public void setTodayForecastCtx(double forecastCtx) {
         this.todayForecastCtx = forecastCtx;
-        context.add(ctx2index.get(NEXTDAY_FORECAST), (int) (forecastCtx/0.35));
+        context.set(ctx2index.get(NEXTDAY_FORECAST), (int) (forecastCtx/0.35));
     }
 
     public void setTimeCtx(int timeCtx) {
         this.timeCtx = timeCtx;
 
         if (timeCtx < 6){
-            context.add(ctx2index.get(TIME), 0);
+            context.set(ctx2index.get(TIME), 0);
             return;
         }
 
         if (timeCtx < 12){
-            context.add(ctx2index.get(TIME), 1);
+            context.set(ctx2index.get(TIME), 1);
             return;
         }
 
         if (timeCtx < 18){
-            context.add(ctx2index.get(TIME), 2);
+            context.set(ctx2index.get(TIME), 2);
             return;
         }
-        context.add(ctx2index.get(TIME), 0);
+        context.set(ctx2index.get(TIME), 0);
     }
 
 }

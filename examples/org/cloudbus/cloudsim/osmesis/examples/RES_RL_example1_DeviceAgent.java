@@ -20,7 +20,7 @@ public class RES_RL_example1_DeviceAgent extends DeviceAgent {
         //Create new message.
         RES_RL_example1_AgentMessage res_rl_message = (RES_RL_example1_AgentMessage) newAgentMessage();
 
-        res_rl_message.setBatteryLevel(this.getIoTDevice().getBattery().getCurrentCapacity());
+        res_rl_message.setBatteryLevel(this.getIoTDevice().getBattery().getCurrentCapacity()/getIoTDevice().getBattery().getMaxCapacity());
         res_rl_message.setSensingRate(this.getIoTDevice().getUpdateIoTDeviceDataRate());
         res_rl_message.setToEdge();
 

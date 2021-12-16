@@ -130,8 +130,8 @@ public class RES_RL_example1 {
         double startTime = CloudSim.startSimulation();
 
         LogUtil.simulationFinished();
-        PrintResults pr = new PrintResults();
-        pr.printOsmesisNetwork();
+        //PrintResults pr = new PrintResults();
+        //pr.printOsmesisNetwork();
 
         Log.printLine();
 

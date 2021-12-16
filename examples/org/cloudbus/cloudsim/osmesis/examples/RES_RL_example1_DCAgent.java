@@ -8,6 +8,7 @@ import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.res.dataproviders.ForecastData;
 
 import java.util.List;
+import java.util.Random;
 
 public class RES_RL_example1_DCAgent extends DCAgent {
 
@@ -22,11 +23,13 @@ public class RES_RL_example1_DCAgent extends DCAgent {
     private double previousReward;
     private int currentState;
 
+    Random random;
     private static final int DEFAULT_NUMBER_OF_ACTIONS = 5;
 
     public RES_RL_example1_DCAgent() {
         environment = new RES_RL_example1_Environment();
         qAgent = new QAgent(environment.getNumStates(), DEFAULT_NUMBER_OF_ACTIONS);
+         random = new Random();
     }
 
     @Override
@@ -88,7 +91,11 @@ public class RES_RL_example1_DCAgent extends DCAgent {
         //Create new message.
         RES_RL_example1_AgentMessage res_rl_message = (RES_RL_example1_AgentMessage) newAgentMessage();
         res_rl_message.setToDevice();
-        this.previousActionId =  qAgent.selectAction().getIndex();
+        previousActionId =  qAgent.selectAction().getIndex();
+
+        if(previousActionId <= 0){
+            previousActionId = random.nextInt(DEFAULT_NUMBER_OF_ACTIONS);
+        }
 
         res_rl_message.setSensingRate(previousActionId * 20.0 + 100.0);
         //Send to all neighbours (null destination means all - follows the agent topology defined in the example file).
