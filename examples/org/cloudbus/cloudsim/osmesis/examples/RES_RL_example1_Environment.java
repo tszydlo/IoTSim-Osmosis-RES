@@ -21,14 +21,14 @@ public class RES_RL_example1_Environment implements QLearnEnvironment {
     double todayForecastCtx;
     int timeCtx;
 
-    Map<String, Integer> maxCtxElements;
+    List<Integer> maxCtxElements;
     Map<String, Integer> ctx2index;
     List<String> ctxElements;
 
     List<Integer> context;
 
     public RES_RL_example1_Environment() {
-        maxCtxElements = new HashMap<>();
+        maxCtxElements = new ArrayList<>();
         ctx2index = new HashMap<>();
         ctxElements = new ArrayList<>();
         context = new ArrayList<>();
@@ -43,7 +43,7 @@ public class RES_RL_example1_Environment implements QLearnEnvironment {
     private void add_context_element(String name, int max_num_of_elements){
         ctxElements.add(name);
         ctx2index.put(name,ctxElements.size()-1);
-        maxCtxElements.put(name, max_num_of_elements);
+        maxCtxElements.add(max_num_of_elements);
         context.add(0);
     }
 
@@ -58,8 +58,10 @@ public class RES_RL_example1_Environment implements QLearnEnvironment {
         if (batteryLevelCtx < 0.05){
             return -1;
         } else {
-            return 100.0/sensingRateCtx;
+            //return 100.0/sensingRateCtx;
             //return batteryLevelCtx;
+
+            return batteryLevelCtx*0.9 + (100.0/sensingRateCtx)*0.1;
         }
     }
 
@@ -75,7 +77,7 @@ public class RES_RL_example1_Environment implements QLearnEnvironment {
         int mult = 1;
         for(int i =0; i< context.size(); i++){
             state+=context.get(i) * mult;
-            mult*=context.get(i);
+            mult*=maxCtxElements.get(i);
         }
         return state;
     }
@@ -125,7 +127,13 @@ public class RES_RL_example1_Environment implements QLearnEnvironment {
     public void setBatteryLevelCtx(double batteryLevelCtx) {
         this.batteryLevelCtx = batteryLevelCtx;
 
-        context.set(ctx2index.get(BATTERY_LEVEL), (int) (batteryLevelCtx/0.2));
+        int value = (int) (batteryLevelCtx/0.2);
+
+        if (value >= maxCtxElements.get(ctx2index.get(BATTERY_LEVEL))){
+            value = maxCtxElements.get(ctx2index.get(BATTERY_LEVEL))-1;
+        }
+
+        context.set(ctx2index.get(BATTERY_LEVEL), value);
     }
 
     public void setNextdayForecastCtx(double forecastCtx) {
