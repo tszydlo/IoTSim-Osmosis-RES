@@ -1,9 +1,7 @@
 package org.cloudbus.agent.qlearning;
 
 public interface QLearnEnvironment {
-    void update(int actionId);
-    double getReward(QLearnAgent agent);
+    double getReward();
     int getState();
-
-    int updateAndGetNewState(QLearnAgent agent, int actionId);
+    int getNumStates();
 }

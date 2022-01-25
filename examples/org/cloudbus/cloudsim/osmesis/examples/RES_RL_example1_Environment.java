@@ -1,6 +1,5 @@
 package org.cloudbus.cloudsim.osmesis.examples;
 
-import org.cloudbus.agent.qlearning.QLearnAgent;
 import org.cloudbus.agent.qlearning.QLearnEnvironment;
 
 import java.util.ArrayList;
@@ -13,13 +12,15 @@ public class RES_RL_example1_Environment implements QLearnEnvironment {
     static String SENSING_RATE="sensing_rate";
     static String NEXTDAY_FORECAST="nextday_forecast";
     static String TODAY_FORECAST="today_forecast";
-    static String TIME="time";
+    static String HOUR="hour";
+    static String MONTH="part_of_year";
 
     double sensingRateCtx;
     double batteryLevelCtx;
     double nextdayForecastCtx;
     double todayForecastCtx;
-    int timeCtx;
+    int hourCtx;
+    int monthCtx;
 
     List<Integer> maxCtxElements;
     Map<String, Integer> ctx2index;
@@ -33,11 +34,12 @@ public class RES_RL_example1_Environment implements QLearnEnvironment {
         ctxElements = new ArrayList<>();
         context = new ArrayList<>();
 
-        add_context_element(BATTERY_LEVEL, 5);
-        add_context_element(SENSING_RATE, 5);
+        //add_context_element(BATTERY_LEVEL, 5);
+        //add_context_element(SENSING_RATE, 5);
         add_context_element(NEXTDAY_FORECAST, 3);
         add_context_element(TODAY_FORECAST, 3);
-        add_context_element(TIME, 4);
+        //add_context_element(HOUR, 4);
+        add_context_element(MONTH, 3);
     }
 
     private void add_context_element(String name, int max_num_of_elements){
@@ -48,27 +50,13 @@ public class RES_RL_example1_Environment implements QLearnEnvironment {
     }
 
     @Override
-    public void update(int actionId) {
-
-    }
-
     public double getReward() {
-        //alpha * r_q + (1-alpha) * r_e
-
         if (batteryLevelCtx < 0.05){
-            return -1;
+            System.out.println("!!!!!! DRAINED BATTERY !!!!!!");
+            return 0;
         } else {
-            //return 100.0/sensingRateCtx;
-            //return batteryLevelCtx;
-
-            return batteryLevelCtx*0.9 + (100.0/sensingRateCtx)*0.1;
+            return batteryLevelCtx*0.8 + (60.0/sensingRateCtx)*0.2;
         }
-    }
-
-    @Override
-    public double getReward(QLearnAgent agent) {
-        //alpha * r_q + (1-alpha) * r_e
-        return 0;
     }
 
     @Override
@@ -82,58 +70,58 @@ public class RES_RL_example1_Environment implements QLearnEnvironment {
         return state;
     }
 
+    @Override
     public int getNumStates() {
         int states = 1;
         for(int i =0; i< context.size(); i++){
-            states*=context.get(i);
+            states*=maxCtxElements.get(i);
         }
         return states;
     }
 
-
-    @Override
-    public int updateAndGetNewState(QLearnAgent agent, int actionId) {
-        return 0;
-    }
-
     public void setSensingRateCtx(double sensingRateCtx) {
         this.sensingRateCtx = sensingRateCtx;
-        if (sensingRateCtx < 1.0) {
-            context.set(ctx2index.get(SENSING_RATE),0);
-            return;
-        };
 
-        if (sensingRateCtx < 2.0) {
-            context.set(ctx2index.get(SENSING_RATE),1);
-            return;
-        };
+        if (ctx2index.containsKey(SENSING_RATE)) {
+            if (sensingRateCtx < 1.0) {
+                context.set(ctx2index.get(SENSING_RATE), 0);
+                return;
+            }
 
-        if (sensingRateCtx < 3.0) {
-            context.set(ctx2index.get(SENSING_RATE),2);
-            return;
-        };
+            if (sensingRateCtx < 2.0) {
+                context.set(ctx2index.get(SENSING_RATE), 1);
+                return;
+            }
 
-        if (sensingRateCtx < 4.0) {
-            context.set(ctx2index.get(SENSING_RATE),3);
-            return;
-        };
+            if (sensingRateCtx < 3.0) {
+                context.set(ctx2index.get(SENSING_RATE), 2);
+                return;
+            }
 
-        if (sensingRateCtx < 5.0) {
-            context.set(ctx2index.get(SENSING_RATE),4);
-            return;
-        };
+            if (sensingRateCtx < 4.0) {
+                context.set(ctx2index.get(SENSING_RATE), 3);
+                return;
+            }
+
+            if (sensingRateCtx < 5.0) {
+                context.set(ctx2index.get(SENSING_RATE), 4);
+                return;
+            }
+        }
     }
 
     public void setBatteryLevelCtx(double batteryLevelCtx) {
         this.batteryLevelCtx = batteryLevelCtx;
 
-        int value = (int) (batteryLevelCtx/0.2);
+        if (ctx2index.containsKey(BATTERY_LEVEL)) {
+            int value = (int) (batteryLevelCtx / 0.2);
 
-        if (value >= maxCtxElements.get(ctx2index.get(BATTERY_LEVEL))){
-            value = maxCtxElements.get(ctx2index.get(BATTERY_LEVEL))-1;
+            if (value >= maxCtxElements.get(ctx2index.get(BATTERY_LEVEL))) {
+                value = maxCtxElements.get(ctx2index.get(BATTERY_LEVEL)) - 1;
+            }
+
+            context.set(ctx2index.get(BATTERY_LEVEL), value);
         }
-
-        context.set(ctx2index.get(BATTERY_LEVEL), value);
     }
 
     public void setNextdayForecastCtx(double forecastCtx) {
@@ -143,27 +131,47 @@ public class RES_RL_example1_Environment implements QLearnEnvironment {
 
     public void setTodayForecastCtx(double forecastCtx) {
         this.todayForecastCtx = forecastCtx;
-        context.set(ctx2index.get(NEXTDAY_FORECAST), (int) (forecastCtx/0.35));
+        context.set(ctx2index.get(TODAY_FORECAST), (int) (forecastCtx/0.35));
     }
 
-    public void setTimeCtx(int timeCtx) {
-        this.timeCtx = timeCtx;
+    public void setMonthCtx(int monthCtx) {
+        this.monthCtx = monthCtx;
 
-        if (timeCtx < 6){
-            context.set(ctx2index.get(TIME), 0);
+        if (monthCtx == 1 || monthCtx == 2 || monthCtx == 11 || monthCtx == 12){
+            context.set(ctx2index.get(MONTH), 0);
+            return;
+         }
+
+        if (monthCtx == 3 || monthCtx == 4 || monthCtx == 9 || monthCtx == 10){
+            context.set(ctx2index.get(MONTH), 1);
             return;
         }
 
-        if (timeCtx < 12){
-            context.set(ctx2index.get(TIME), 1);
+        if (monthCtx == 5 || monthCtx == 6 || monthCtx == 7 || monthCtx == 8){
+            context.set(ctx2index.get(MONTH), 2);
             return;
         }
-
-        if (timeCtx < 18){
-            context.set(ctx2index.get(TIME), 2);
-            return;
-        }
-        context.set(ctx2index.get(TIME), 0);
     }
 
+    public void setHourCtx(int hourCtx) {
+        this.hourCtx = hourCtx;
+
+        if (ctx2index.containsKey(HOUR)) {
+            if (hourCtx < 6) {
+                context.set(ctx2index.get(HOUR), 0);
+                return;
+            }
+
+            if (hourCtx < 12) {
+                context.set(ctx2index.get(HOUR), 1);
+                return;
+            }
+
+            if (hourCtx < 18) {
+                context.set(ctx2index.get(HOUR), 2);
+                return;
+            }
+            context.set(ctx2index.get(HOUR), 0);
+        }
+    }
 }

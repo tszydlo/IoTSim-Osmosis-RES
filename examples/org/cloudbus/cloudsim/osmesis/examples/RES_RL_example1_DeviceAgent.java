@@ -22,11 +22,17 @@ public class RES_RL_example1_DeviceAgent extends DeviceAgent {
 
         res_rl_message.setBatteryLevel(this.getIoTDevice().getBattery().getCurrentCapacity()/getIoTDevice().getBattery().getMaxCapacity());
         res_rl_message.setSensingRate(this.getIoTDevice().getUpdateIoTDeviceDataRate());
+
         res_rl_message.setToEdge();
 
         //Send to all neighbours (null destination means all - follows the agent topology defined in the example file).
         res_rl_message.setDESTINATION(null);
-        publishMessage(res_rl_message);
+
+        if (this.getIoTDevice().getUpdateIoTDeviceDataRate() == 0.0){
+            //System.out.println("DEBUG - Device No Used" + this.getIoTDevice().getUpdateIoTDeviceDataRate());
+        } else {
+            publishMessage(res_rl_message);
+        }
     }
 
     @Override
@@ -42,7 +48,6 @@ public class RES_RL_example1_DeviceAgent extends DeviceAgent {
             if (res_rl_message.isToDevice()){
                 //System.out.println("Message from device "+res_rl_message.getSOURCE()+" Device="+this.getName() + " New sensing rate="+res_rl_message.getSensingRate());
                 this.getIoTDevice().setUpdateIoTDeviceDataRate(res_rl_message.getSensingRate());  //To update IoTDevice data rate
-                //getIoTDevice().setUpdateIoTDeviceDataRate(50.0);
             }
         }
     }

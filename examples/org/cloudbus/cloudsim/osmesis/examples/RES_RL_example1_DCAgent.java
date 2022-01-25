@@ -1,24 +1,24 @@
 package org.cloudbus.cloudsim.osmesis.examples;
 
-import com.github.chen0040.rl.learning.qlearn.QAgent;
 import org.cloudbus.agent.AgentMessage;
 import org.cloudbus.agent.DCAgent;
+import org.cloudbus.agent.qlearning.QLearning;
 import org.cloudbus.cloudsim.Log;
-import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.res.dataproviders.ForecastData;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 public class RES_RL_example1_DCAgent extends DCAgent {
 
     List<AgentMessage> messages;
 
-    QAgent qAgent;
     RES_RL_example1_Environment environment;
+
+    QLearning qLearning;
 
     ForecastData forecast;
 
@@ -26,19 +26,39 @@ public class RES_RL_example1_DCAgent extends DCAgent {
     private double previousReward;
     private int currentState;
 
+    private double cumulatedReward=0;
+    private int cumulative_low_bat=0;
+
+    private Set<Integer> lowBatteryDays;
+
+    double sensing_sum=0;
+    double sensing_iter=0;
+
+    boolean stored;
+
     Random random;
     private static final int DEFAULT_NUMBER_OF_ACTIONS = 6;
 
     public RES_RL_example1_DCAgent() {
         environment = new RES_RL_example1_Environment();
-        qAgent = new QAgent(environment.getNumStates(), DEFAULT_NUMBER_OF_ACTIONS);
-         random = new Random();
+        qLearning = new QLearning(environment.getNumStates(), DEFAULT_NUMBER_OF_ACTIONS, true);
+        qLearning.setEpsilon(0.0);
+        random = new Random();
+        lowBatteryDays = new HashSet<>();
     }
 
     @Override
     public void monitor() {
         super.monitor();
 
+        //Read model on the first day
+        int d = energyController.getSimulationCurrentTime().getDayOfYear();
+        int h = energyController.getSimulationCurrentTime().getHour();
+
+        if (d==1 && h==0 && !stored) {
+            qLearning.readQ("q_table_"+getName()+".json");
+            stored = true;
+        }
     }
 
     @Override
@@ -61,6 +81,10 @@ public class RES_RL_example1_DCAgent extends DCAgent {
                 environment.setBatteryLevelCtx(res_rl_message.getBatteryLevel());
                 environment.setSensingRateCtx(res_rl_message.getSensingRate());
 
+                if (res_rl_message.getSensingRate() == 0.0){
+                    System.out.println("ASSERT " + res_rl_message.getSensingRate());
+                }
+
                 if (energyController.getEnergySources().get(0).getEnergyData().isForecast()){
                     forecast = (ForecastData) energyController.getEnergySources().get(0).getEnergyData();
                     double forecast_tab[] = forecast.getNDayForecast(2, energyController.getSimulationCurrentTime());
@@ -68,17 +92,32 @@ public class RES_RL_example1_DCAgent extends DCAgent {
                     environment.setNextdayForecastCtx(forecast_tab[1]);
                 };
 
-                environment.setTimeCtx((int)(CloudSim.clock()%(24*3600)/3600));
+                environment.setHourCtx(energyController.getSimulationCurrentTime().getHour());
+                environment.setMonthCtx(energyController.getSimulationCurrentTime().getMonthValue());
 
                 this.previousReward = environment.getReward();
                 this.currentState = environment.getState();
-                this.qAgent.update(this.previousActionId, this.currentState, this.previousReward);
+
+                sensing_iter += 1.0;
+                sensing_sum += res_rl_message.getSensingRate();
+
+                cumulatedReward += previousReward;
+
+                if (previousReward == 0.0) {
+                    lowBatteryDays.add(energyController.getSimulationCurrentTime().getDayOfYear());
+                }
+
+                if (previousReward == 0.0) {
+                    //allow for terminal states
+                    this.qLearning.setQforAction(this.previousActionId, 0.0);
+                } else {
+                    this.qLearning.update(this.previousActionId, this.currentState, this.previousReward);
+                }
+
 
                 String line = String.format("%1s\t%10s\t%10s\t%10s\t%10s\t%10s\t%10s\t%10s\t%10s"
-                        //, (int)(CloudSim.clock()/3600/24)
                         , energyController.getSimulationCurrentTime().getYear()
                         , energyController.getSimulationCurrentTime().getDayOfYear()
-                        //, (int)(CloudSim.clock()%(24*3600)/3600)
                         , energyController.getSimulationCurrentTime().getMonthValue()
                         , energyController.getSimulationCurrentTime().getHour()
                         , previousReward
@@ -109,18 +148,29 @@ public class RES_RL_example1_DCAgent extends DCAgent {
         //Create new message.
         RES_RL_example1_AgentMessage res_rl_message = (RES_RL_example1_AgentMessage) newAgentMessage();
         res_rl_message.setToDevice();
-        previousActionId =  qAgent.selectAction().getIndex();
 
-        //previousActionId = -1;
+        previousActionId =  qLearning.selectActionWithExploration();
 
-        if(previousActionId <= 0){
-            previousActionId = random.nextInt(DEFAULT_NUMBER_OF_ACTIONS);
-        }
+        //For constant action selection
+        //previousActionId = 5;
 
-        res_rl_message.setSensingRate(previousActionId * 20.0 + 100.0);
-        //res_rl_message.setSensingRate(200.0);
-        //Send to all neighbours (null destination means all - follows the agent topology defined in the example file).
+        int temp = DEFAULT_NUMBER_OF_ACTIONS - previousActionId - 1;
+        res_rl_message.setSensingRate(temp * 30.0 + 60.0);
+
         res_rl_message.setDESTINATION(null);
         publishMessage(res_rl_message);
+
+        //Store model on the last day
+        int d = energyController.getSimulationCurrentTime().getDayOfYear();
+        int h = energyController.getSimulationCurrentTime().getHour();
+
+        if (d==365 && h==23 && stored) {
+            stored = false;
+            qLearning.saveQ("q_table_"+getName()+".json");
+
+            System.out.println(">>>>>>>>>>>>> CUMULATED REWARD: "+ cumulatedReward);
+            System.out.println(">>>>>>>>>>>>> Low Batt Days: "+ lowBatteryDays.size());
+            System.out.println(">>>>>>>>>>>>> Average Sensing Rate: "+ sensing_sum/sensing_iter);
+        }
     }
 }

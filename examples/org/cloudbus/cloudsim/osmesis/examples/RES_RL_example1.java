@@ -6,8 +6,6 @@ import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.edge.core.edge.ConfiguationEntity;
 import org.cloudbus.cloudsim.edge.utils.LogUtil;
 import org.cloudbus.cloudsim.osmesis.examples.uti.LogPrinter;
-import org.cloudbus.cloudsim.osmesis.examples.uti.PrintResults;
-import org.cloudbus.cloudsim.osmesis.examples.uti.RESPrinterDeviceBattery;
 import org.cloudbus.cloudsim.sdn.Switch;
 import org.cloudbus.osmosis.core.*;
 import org.cloudbus.res.EnergyController;
@@ -38,8 +36,11 @@ public class RES_RL_example1 {
     EdgeSDNController edgeSDNController;
 
     public static void main(String[] args) throws Exception {
-        RES_RL_example1 osmosis = new RES_RL_example1();
-        osmosis.start();
+        for(int n=0; n<1; n++) {
+            RES_RL_example1 osmosis = new RES_RL_example1();
+            osmosis.start();
+            osmosis = null;
+        }
     }
 
     public void start() throws Exception{
@@ -59,25 +60,9 @@ public class RES_RL_example1 {
         //Simulation is not started yet thus there is not any MELs.
         //Links for Agents between infrastructure elements.
         agentBroker.addAgentLink("temperature_1", "Edge_M_1");
-        //agentBroker.addAgentLink("temperature_1", "Edge_M_2");
 
         //Osmotic Agents time interval
         agentBroker.setMAPEInterval(15*60);
-
-        // Getting configuration from json and entering classes to Agent Broker
-        //AgentConfigProvider provider = new AgentConfigProvider(AgentConfigLoader.getFromFile(AGENT_CONFIG_FILE));
-
-        // In this example, the Central Agent is not used
-        //agentBroker.setDcAgentClass(provider.getDCAgentClass());
-        //agentBroker.setDeviceAgentClass(provider.getDeviceAgentClass());
-        //agentBroker.setDeviceAgentClass(RES_forecast_example1_DeviceAgent.class);
-        //agentBroker.setAgentMessageClass(provider.getAgentMessageClass());
-
-        //Simulation is not started yet thus there is not any MELs.
-        //Links for Agents between infrastructure elements.
-        //for (TopologyLink link : provider.getTopologyLinks()) {
-        //    agentBroker.addAgentLink(link.AgentA, link.AgentB);
-        //}
 
         //Osmotic Agents time interval
         agentBroker.setMAPEInterval(10*60);
@@ -130,8 +115,6 @@ public class RES_RL_example1 {
         double startTime = CloudSim.startSimulation();
 
         LogUtil.simulationFinished();
-        //PrintResults pr = new PrintResults();
-        //pr.printOsmesisNetwork();
 
         Log.printLine();
 
@@ -142,17 +125,6 @@ public class RES_RL_example1 {
         }
 
         Log.printLine();
-        //LogPrinter.printEnergyConsumption(topologyBuilder.getSdWanController().getName(), null, topologyBuilder.getSdWanController().getSwitchList(), startTime);
-        //Log.printLine();
-        //Log.printLine("Simulation Finished!");
-
-        Log.printLine();
-        //Log.printLine("Post-mortem RES energy analysis!");
-        //RESPrinterDeviceBattery res_printer = new RESPrinterDeviceBattery();
-        //res_printer.postMortemAnalysis(energyControllers,simulationStartTime, true,10000);
-        //res_printer.postMortemAnalysis(energyControllers,simulationStartTime, false, 36);
-        //res_printer.postMortemAnalysis(energyControllers,"20160901:0000", false, 36);
-        //Log.printLine("End of RES analysis!");
     }
 
     private Map<String, EnergyController> getEnergyControllers() throws IOException {
@@ -182,8 +154,4 @@ public class RES_RL_example1 {
     public void setEdgeSDNController(EdgeSDNController edc) {
         this.edgeSDNController = edc;
     }
-
-
-
-
 }
