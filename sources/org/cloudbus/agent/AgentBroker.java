@@ -11,7 +11,7 @@ import java.util.*;
 public class AgentBroker {
     //Singleton pattern
     private static AgentBroker singleton = new AgentBroker();
-    private Map<String, EnergyController> energyControllers;
+    private Map<String, EnergyController> energyControllers = new HashMap<>();
 
     public static AgentBroker getInstance() {
         return singleton;
@@ -239,11 +239,11 @@ public class AgentBroker {
         //Monitor & Analyze
         for(Agent agent: agentsDC.values()){
             agent.monitor();
-            agent.analyze();
+            agent.analyze(); //tutaj czekaj z blokowaniem na nowa wiadomosc z mqtt, rozeslij do deviceow ich nowe sens rate
         }
         for(Agent agent: agentsDevices.values()){
             agent.monitor();
-            agent.analyze();
+            agent.analyze(); // ustaw nowe sens rate, wyslij wiadomosc do edge'a na temat stanu baterii
         }
 
         //Message passing between agents
@@ -251,7 +251,7 @@ public class AgentBroker {
         //Plan & Execute
         for(Agent agent: agentsDC.values()){
             agent.plan();
-            agent.execute();
+            agent.execute(); // tutaj zbierz dane na temat stanu baterii i wyslij do mqtt
         }
         for(Agent agent: agentsDevices.values()){
             agent.plan();
