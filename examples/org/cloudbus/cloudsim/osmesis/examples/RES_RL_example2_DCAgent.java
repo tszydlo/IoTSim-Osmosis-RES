@@ -43,7 +43,7 @@ public class RES_RL_example2_DCAgent extends DCAgent {
                 for (int i = 0; i < 4; i++) {
                     RES_RL_example2_AgentMessage msg = (RES_RL_example2_AgentMessage) newAgentMessage();
                     msg.setToDevice(i);
-                    msg.setSensingRate(RL_BROKER.getSensingRates(i));
+                    msg.setSensingRate(RL_BROKER.getSensingRates(Integer.toString(i)));
                     publishMessage(msg);
                     RL_BROKER.awaitingMessage = true;
                 }

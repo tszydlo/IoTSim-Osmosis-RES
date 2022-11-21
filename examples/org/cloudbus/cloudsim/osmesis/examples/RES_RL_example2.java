@@ -59,7 +59,7 @@ public class RES_RL_example2 {
         RL_BROKER.mqttClient = new MqttClient("tcp://127.0.0.1:1883", clientId);
         RL_BROKER.mqttClient.connect();
         RL_BROKER.mqttClient.subscribe(RL_BROKER.mqttTopicRange, (topic, msg) -> {
-            Map<Integer, Integer> parsedData = (Map<Integer, Integer>) parser.parse(new String(msg.getPayload()));
+            Map<String, Long> parsedData = (Map<String, Long>) parser.parse(new String(msg.getPayload()));
             System.out.println("GOT NEW MESSAGE");
             System.out.println(parsedData);
             RL_BROKER.newSensingRangeMessage(parsedData);

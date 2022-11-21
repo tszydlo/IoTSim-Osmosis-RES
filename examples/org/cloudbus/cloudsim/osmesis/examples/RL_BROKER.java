@@ -9,16 +9,15 @@ import org.json.simple.parser.JSONParser;
 import java.util.Map;
 
 public class RL_BROKER {
-    private static Map<Integer, Integer> lastMessage;
-    private static double K = 1.0;
-    private static double MAX_SENSING_RATE = 300.0;
+    private static Map<String, Long> lastMessage;
+    private static double K = 0.35;
     public static IMqttClient mqttClient;
     public static String mqttTopicRange = "senscoveragerange";
     public static String mqttTopicEnergy = "senscoverageenergy";
 
     private static JSONParser parser = new JSONParser();
 
-    public synchronized static void newSensingRangeMessage(Map<Integer, Integer> message) {
+    public synchronized static void newSensingRangeMessage(Map<String, Long> message) {
         lastMessage = message;
         awaitingMessage = false;
     }
@@ -35,11 +34,12 @@ public class RL_BROKER {
     public static boolean awaitingMessage = true;
 
 
-    public synchronized static double getSensingRates(int deviceId) {
-        double sensingRange = lastMessage.getOrDefault(deviceId, 0) * 1.0;
+    public synchronized static double getSensingRates(String deviceId) {
+        long sensingRange = lastMessage.getOrDefault(deviceId, 0L);
         if (sensingRange == 0) {
-            return MAX_SENSING_RATE;
+            return 0.001;
+        } else {
+            return sensingRange * K;
         }
-        return 1 / (sensingRange * sensingRange * Math.PI * K);
     }
 }

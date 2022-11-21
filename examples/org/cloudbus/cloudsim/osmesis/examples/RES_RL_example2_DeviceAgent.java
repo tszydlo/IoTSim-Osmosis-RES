@@ -35,7 +35,9 @@ public class RES_RL_example2_DeviceAgent extends DeviceAgent {
 
         messages = this.getCastMessages();
 
-        this.getIoTDevice().setUpdateIoTDeviceDataRate(messages.get(0).sensingRate);
+        double sensingRate = messages.get(0).sensingRate;
+        this.getIoTDevice().setUpdateIoTDeviceDataRate(300);
+        this.getIoTDevice().getBattery().setBatterySensingRate(sensingRate);
 
         RES_RL_example2_AgentMessage res_rl_message = (RES_RL_example2_AgentMessage) newAgentMessage();
 
